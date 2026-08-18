@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="author" content="Jaqueline Valenzuela, Q.F. — Hospital de Pitrufquén, Red Farmacia SSASUR">
+<title>Registro de Validación de Dispensación · Red SSASUR</title>
+<!--
+  Registro de Validación de Dispensación — Red de Farmacia SSASUR
+  Creada y desarrollada por Jaqueline Valenzuela, Químico Farmacéutico
+  Hospital de Pitrufquén · Servicio de Salud Araucanía Sur
+  Primera versión: agosto de 2026
+-->
+
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiUmVnaXN0cm8gVmFsaWRhY2nDs24gRGlzcGVuc2FjacOzbiIsInNob3J0X25hbWUiOiJSVkQiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBCMkIzMCIsInRoZW1lX2NvbG9yIjoiIzAyODA5MCJ9">
+<style>
+  :root{
+    --teal:#028090; --seafoam:#00A896; --mint:#02C39A; --dark:#0B2B30; --ink:#16302f;
+    --muted:#5C7A7E; --card:#E7F3F1; --offwhite:#F4F9F8; --white:#FFFFFF; --alert:#B85042; --amber:#C98A2C;
+    --line:#D5E7E4;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family: Calibri, "Segoe UI", Arial, sans-serif;
+    background:var(--offwhite); color:var(--ink);
+    min-height:100vh; -webkit-tap-highlight-color:transparent;
+  }
+  header{
+    background:var(--dark); color:var(--white); padding:16px 18px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    position:sticky; top:0; z-index:20;
+  }
+  header .brand{display:flex; flex-direction:column; line-height:1.2;}
+  header .brand b{font-size:16px;}
+  header .brand span{font-size:11.5px; color:#9FC6C3;}
+  header button.icon{
+    background:rgba(255,255,255,.12); border:none; color:var(--white); width:38px; height:38px;
+    border-radius:10px; font-size:18px; cursor:pointer;
+  }
+  main{max-width:520px; margin:0 auto; padding:16px 16px 90px;}
+  .hidden{display:none !important;}
+
+  .card{
+    background:var(--white); border:1px solid var(--line); border-radius:14px;
+    padding:18px; margin-bottom:14px;
+  }
+  .card h2{margin:0 0 4px; font-size:17px;}
+  .card p.sub{margin:0 0 14px; color:var(--muted); font-size:13px;}
+
+  label{display:block; font-size:12.5px; font-weight:bold; color:var(--teal); margin:12px 0 5px;}
+  select, input[type=text], input[type=password], input[type=number]{
+    width:100%; padding:12px 12px; border-radius:10px; border:1.5px solid var(--line);
+    font-size:15px; background:var(--white); color:var(--ink); font-family:inherit;
+  }
+  select:focus, input:focus{outline:2px solid var(--mint); border-color:var(--mint);}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:14px 16px; border-radius:12px; border:none;
+    font-size:15.5px; font-weight:bold; cursor:pointer; font-family:inherit;
+  }
+  .btn-primary{background:var(--teal); color:var(--white);}
+  .btn-primary:active{background:var(--seafoam);}
+  .btn-secondary{background:var(--card); color:var(--teal);}
+  .btn-ghost{background:transparent; color:var(--muted); border:1.5px solid var(--line);}
+  .btn-danger{background:#fbeceb; color:var(--alert);}
+  .btn[disabled]{opacity:.5; cursor:not-allowed;}
+  .btn-row{display:flex; gap:10px; margin-top:10px;}
+  .btn-row .btn{width:auto; flex:1;}
+
+  .stat-row{display:flex; gap:10px; margin-bottom:14px;}
+  .stat{flex:1; background:var(--dark); color:var(--white); border-radius:14px; padding:14px; text-align:center;}
+  .stat b{display:block; font-size:26px; line-height:1.1;}
+  .stat span{font-size:11px; color:#9FC6C3;}
+
+  .session-pill{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--card); border-radius:12px; padding:10px 14px; margin-bottom:14px; font-size:13px;
+  }
+  .session-pill b{color:var(--teal); font-size:14px;}
+  .session-pill button{background:none; border:none; color:var(--muted); font-size:12px; text-decoration:underline; cursor:pointer;}
+
+  .scan-btn{
+    background:var(--mint); color:var(--dark); border:none; border-radius:16px;
+    padding:28px 16px; width:100%; font-size:17px; font-weight:bold; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:8px; font-family:inherit;
+  }
+  .scan-btn .ico{font-size:30px;}
+  .scan-btn small{font-weight:normal; font-size:12px; color:#0B2B30cc;}
+
+  #reader{width:100%; border-radius:12px; overflow:hidden; margin-bottom:10px; background:#000;}
+  #reader video{border-radius:12px;}
+
+  .entry{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .entry:last-child{border-bottom:none;}
+  .entry .folio{font-weight:bold; font-family:"Courier New",monospace; font-size:14.5px;}
+  .folio-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .entry .meta{font-size:11.5px; color:var(--muted); margin-top:2px;}
+  .tag{
+    font-size:10.5px; font-weight:bold; padding:3px 8px; border-radius:20px; white-space:nowrap;
+  }
+  .tag-ok{background:#DDF3EC; color:var(--seafoam);}
+  .tag-int{background:#FCEFDD; color:var(--amber);}
+  .empty{text-align:center; color:var(--muted); font-size:13px; padding:26px 10px;}
+
+  nav.tabs{
+    position:fixed; bottom:0; left:0; right:0; background:var(--white); border-top:1px solid var(--line);
+    display:flex; z-index:20;
+  }
+  nav.tabs button{
+    flex:1; background:none; border:none; padding:10px 4px 12px; font-size:11px; color:var(--muted);
+    display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; font-family:inherit;
+  }
+  nav.tabs button .ico{font-size:19px;}
+  nav.tabs button.active{color:var(--teal); font-weight:bold;}
+
+  .modal-bg{
+    position:fixed; inset:0; background:rgba(11,43,48,.55); display:flex; align-items:flex-end;
+    justify-content:center; z-index:50;
+  }
+  .modal{
+    background:var(--white); border-radius:18px 18px 0 0; padding:22px 20px 26px; width:100%; max-width:520px;
+    max-height:88vh; overflow-y:auto;
+  }
+  .modal h3{margin:0 0 4px;}
+  .modal p.sub{color:var(--muted); font-size:13px; margin:0 0 16px;}
+  .choice-row{display:flex; gap:10px; margin:10px 0 4px;}
+  .choice{
+    flex:1; border:1.5px solid var(--line); border-radius:12px; padding:14px 10px; text-align:center;
+    cursor:pointer; font-size:13.5px; font-weight:bold; color:var(--muted);
+  }
+  .choice.sel-ok{border-color:var(--seafoam); background:#EAFBF6; color:var(--seafoam);}
+  .choice.sel-int{border-color:var(--amber); background:#FEF6EA; color:var(--amber);}
+
+  .banner{
+    border-radius:12px; padding:12px 14px; font-size:13px; margin-bottom:12px; display:flex; gap:10px; align-items:flex-start;
+  }
+  .banner-warn{background:#FEF6EA; color:#7A5310; border:1px solid #F1D9A6;}
+  .banner-ok{background:#EAFBF6; color:#0A6650; border:1px solid #BDEBDD;}
+
+  .qf-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .qf-row:last-child{border-bottom:none;}
+  .qf-row button{background:none; border:none; color:var(--alert); font-size:12px; cursor:pointer;}
+  .obs-row{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:9px 10px; background:var(--card); border-radius:10px; margin-top:8px; font-size:13px;}
+  .obs-row b{display:block; color:var(--teal); font-size:13px;}
+  .obs-row span.d{color:var(--muted); font-size:12px;}
+  .obs-row button{background:none; border:none; color:var(--alert); font-size:16px; cursor:pointer; line-height:1;}
+  .mod-tag{font-size:10.5px; font-weight:bold; padding:2px 8px; border-radius:20px; white-space:nowrap; display:inline-block;}
+  .cat-tag{font-size:10px; font-weight:bold; padding:2px 7px; border-radius:20px; white-space:nowrap; display:inline-block; margin:3px 4px 0 0;}
+  .cat-receta{background:#FEF6EA; color:#C98A2C;}
+  .cat-prep{background:#F1E7FA; color:#6B4FA0;}
+  .cat-otro{background:#EEF1F4; color:#5C7A7E;}
+  .cat-wrap{margin-top:3px;}
+  .mod-Ambulatorio{background:#DDEEF1; color:#028090;}
+  .mod-Hospitalizado{background:#DCE1E8; color:#0B2B30;}
+  .mod-GestiónTerritorial{background:#F1E7FA; color:#6B4FA0;}
+  .mod-Casillero{background:#FBEAE7; color:#B85042;}
+  .mod-Urgencia{background:#FDE7E4; color:#A8342A;}
+
+  .clinical-time-card{
+    display:flex; align-items:center; gap:12px; background:var(--dark); color:var(--white);
+    border-radius:14px; padding:14px 16px; margin-bottom:14px;
+  }
+  .clinical-time-card .ct-ico{font-size:26px;}
+  .clinical-time-card .ct-label{font-size:11px; color:#9FC6C3; text-transform:uppercase; letter-spacing:.3px;}
+  .clinical-time-card .ct-value{font-size:20px; font-weight:bold; color:var(--mint);}
+  .clinical-time-card .ct-value b{font-size:22px;}
+  .small-link{font-size:12px; color:var(--teal); text-align:center; display:block; margin-top:10px; cursor:pointer;}
+  footer.note{font-size:11px; color:var(--muted); text-align:center; margin-top:6px; line-height:1.5;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <b>Registro de Validación de Dispensación</b>
+    <span>Red de Farmacia · Servicio de Salud Araucanía Sur</span>
+  </div>
+  <button class="icon" id="btnAdmin" title="Administración">⚙</button>
+</header>
+
+<main>
+
+  <!-- ===================== LOGIN VIEW ===================== -->
+  <section id="viewLogin">
+    <div class="card">
+      <h2 id="loginTitle">Iniciar turno</h2>
+      <p class="sub" id="loginSub">Selecciona tu nombre e ingresa tu PIN para comenzar a registrar validaciones.</p>
+
+      <div id="loginNoQfs" class="hidden">
+        <div class="banner banner-warn">Aún no hay ningún QF configurado. Agrega el primero para comenzar.</div>
+        <label>Nombre del Químico Farmacéutico</label>
+        <input type="text" id="firstQfName" placeholder="Ej: Jacqueline Valenzuela">
+        <label>Crear PIN (4 dígitos)</label>
+        <input type="password" id="firstQfPin" inputmode="numeric" maxlength="4" placeholder="••••">
+        <label>Establecimiento asignado</label>
+        <select id="firstQfEst"></select>
+        <button class="btn btn-primary" style="margin-top:14px" onclick="createFirstQf()">Crear y continuar</button>
+      </div>
+
+      <div id="loginForm">
+        <label>Establecimiento</label>
+        <select id="loginEstSelect" onchange="onLoginEstChange()"></select>
+
+        <label>Químico Farmacéutico</label>
+        <select id="loginQfSelect"></select>
+
+        <label>PIN</label>
+        <input type="password" id="loginPin" inputmode="numeric" maxlength="4" placeholder="••••">
+
+        <button class="btn btn-primary" style="margin-top:16px" onclick="doLogin()">Iniciar turno</button>
+        <p id="loginError" class="hidden" style="color:var(--alert); font-size:13px; margin-top:10px; text-align:center;">PIN incorrecto.</p>
+        <p id="loginNoQfForEst" class="hidden" style="color:var(--muted); font-size:13px; margin-top:10px; text-align:center;">Aún no hay ningún QF asignado a este establecimiento.</p>
+        <span class="small-link" onclick="openAdmin()">¿Falta tu nombre en la lista? Administrar QFs</span>
+        <span class="small-link" onclick="fetchServerLists(() => { refreshLoginView(); alert('Lista actualizada.'); })">Actualizar lista de QFs</span>
+      </div>
+    </div>
+    <footer class="note">
+      Creado y desarrollado por <b>Jaqueline Valenzuela</b>, Q.F. · Hospital de Pitrufquén<br>
+      Red de Farmacia · Servicio de Salud Araucanía Sur
+    </footer>
+  </section>
+
+  <!-- ===================== MAIN (SCAN) VIEW ===================== -->
+  <section id="viewMain" class="hidden">
+    <div class="session-pill">
+      <div><b id="sessSummary"></b></div>
+      <button onclick="logout()">Cerrar turno</button>
+    </div>
+
+    <div class="clinical-time-card" id="clinicalTimeCard">
+      <span class="ct-ico">⏱️</span>
+      <div>
+        <div class="ct-label">Tiempo Clínico Aportado en este Turno</div>
+        <div class="ct-value"><b id="statTiempoClinico">0.00</b> hrs</div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><b id="statHoy">0</b><span>RECETAS HOY</span></div>
+      <div class="stat"><b id="statPresc">0</b><span>PRESCRIPCIONES</span></div>
+      <div class="stat"><b id="statInt">0</b><span>CON INTERVENCIÓN</span></div>
+    </div>
+
+    <!-- Subestudio de medición de tiempo. Oculto salvo que se active en Admin. -->
+    <div id="cronoCard" class="hidden" style="background:#FEF6EA; border:1.5px solid #F1D9A6; border-radius:14px; padding:14px 16px; margin-bottom:14px;">
+      <div style="font-size:12px; font-weight:bold; color:#7A5310; margin-bottom:8px;">⏱️ MEDICIÓN DE TIEMPO ACTIVA</div>
+      <div id="cronoIdle">
+        <p class="sub" style="margin:0 0 10px; color:#7A5310;">Pulsa al tomar la receta, <b>antes</b> de empezar a validarla.</p>
+        <button class="btn" style="background:#C98A2C; color:#fff;" onclick="iniciarCrono()">▶ Iniciar validación cronometrada</button>
+      </div>
+      <div id="cronoRunning" class="hidden">
+        <p class="sub" style="margin:0 0 6px; color:#7A5310;">Validación en curso — <b id="cronoElapsed">0s</b></p>
+        <p class="sub" style="margin:0 0 10px; color:#7A5310;">Registra la receta normalmente; el tiempo se guarda al guardar el registro.</p>
+        <button class="btn btn-ghost" onclick="cancelarCrono()">Cancelar medición</button>
+      </div>
+    </div>
+
+    <button class="scan-btn" onclick="startScan()">
+      <span class="ico">▭▯▭</span>
+      Escanear código de barras de la receta
+      <small>Usa la cámara del celular</small>
+    </button>
+
+    <div style="text-align:center; margin:12px 0;">
+      <span class="small-link" onclick="openManualEntry()">La receta no tiene código legible — ingresar folio manualmente</span>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h2 style="font-size:15px;">Registrado hoy</h2>
+      <div id="todayList"></div>
+      <span class="small-link" onclick="recuperarMisRegistrosDesdeServidor(null, true)">🔄 ¿Falta algo? Recuperar mis registros desde la planilla</span>
+    </div>
+  </section>
+
+  <!-- ===================== HISTORIAL VIEW ===================== -->
+  <section id="viewHistory" class="hidden">
+    <div class="card">
+      <h2>Historial</h2>
+      <p class="sub">Filtra por fecha y exporta el registro para respaldar la programación de horas.</p>
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;">
+          <label>Desde</label>
+          <input type="date" id="histFrom">
+        </div>
+        <div style="flex:1;">
+          <label>Hasta</label>
+          <input type="date" id="histTo">
+        </div>
+      </div>
+      <label>Establecimiento</label>
+      <select id="histEstFilter"><option value="">Todos</option></select>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="renderHistory()">Filtrar</button>
+        <button class="btn btn-primary" onclick="exportCsv()">Exportar CSV</button>
+      </div>
+      <span class="small-link" onclick="recuperarMisRegistrosDesdeServidor(null, true)">🔄 ¿Falta algo? Recuperar mis registros desde la planilla</span>
+    </div>
+    <div class="card">
+      <div id="histSummary" class="sub" style="margin-bottom:10px;"></div>
+      <div id="histList"></div>
+    </div>
+  </section>
+
+  <!-- ===================== VISTA EQUIPO ===================== -->
+  <section id="viewEquipo" class="hidden">
+    <div class="card">
+      <h2>Vista Equipo</h2>
+      <p class="sub">Registros en tiempo real consultados desde la planilla central. Elige "Toda la red SSASUR" para ver también los otros hospitales.</p>
+      <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+        <div style="flex:1; min-width:120px;">
+          <label>Fecha</label>
+          <input type="date" id="equipoFecha">
+        </div>
+        <div style="flex:1; min-width:120px;">
+          <label>QF</label>
+          <select id="equipoQfFilter"><option value="">Todos</option></select>
+        </div>
+      </div>
+      <label>Establecimiento</label>
+      <select id="equipoEstFilter"></select>
+      <button class="btn btn-secondary" style="margin-top:12px;" onclick="cargarEquipo()">Actualizar</button>
+    </div>
+
+    <div class="card" id="equipoResumenCard" style="display:none;">
+      <div id="equipoResumen"></div>
+    </div>
+
+    <div class="card">
+      <div id="equipoStatus" class="sub" style="margin-bottom:8px;"></div>
+      <div id="equipoList"></div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN VIEW ===================== -->
+  <section id="viewAdmin" class="hidden">
+    <div id="adminLock" class="card">
+      <h2>Administración</h2>
+      <p class="sub">Ingresa el PIN de administración para gestionar QFs y establecimientos.</p>
+      <label>PIN admin</label>
+      <input type="password" id="adminPinInput" inputmode="numeric" maxlength="4" placeholder="••••">
+      <button class="btn btn-primary" style="margin-top:14px" onclick="unlockAdmin()">Ingresar</button>
+      <p style="font-size:11.5px; color:var(--muted); margin-top:10px;">PIN por defecto: 1702 (puedes cambiarlo dentro del panel).</p>
+    </div>
+
+    <div id="adminPanel" class="hidden">
+      <div class="card">
+        <h2>Químicos Farmacéuticos</h2>
+        <div id="qfList"></div>
+        <label>Nombre</label>
+        <input type="text" id="newQfName" placeholder="Nombre completo">
+        <label>PIN (4 dígitos)</label>
+        <input type="password" id="newQfPin" inputmode="numeric" maxlength="4" placeholder="••••">
+        <label>Establecimiento asignado</label>
+        <select id="newQfEst"></select>
+        <button class="btn btn-secondary" style="margin-top:12px" onclick="addQf()">Agregar QF</button>
+      </div>
+
+      <div class="card">
+        <h2>Establecimientos</h2>
+        <div id="estList"></div>
+        <label>Nuevo establecimiento</label>
+        <input type="text" id="newEst" placeholder="Nombre del establecimiento">
+        <button class="btn btn-secondary" style="margin-top:12px" onclick="addEst()">Agregar establecimiento</button>
+      </div>
+
+      <div class="card">
+        <h2>Planilla central (Google Sheets)</h2>
+        <p class="sub">Cada registro se envía automáticamente a esta planilla además de guardarse en el celular, para tener un respaldo centralizado y auditable de los 5 establecimientos.</p>
+        <label>URL de la aplicación web (Apps Script)</label>
+        <input type="text" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+        <button class="btn btn-secondary" style="margin-top:12px" onclick="saveSheetUrl()">Guardar URL</button>
+        <div id="sheetUrlStatus" class="sub" style="margin-top:8px;"></div>
+        <span class="small-link" onclick="syncPending()">Reintentar envío de registros pendientes</span>
+
+        <button class="btn btn-ghost" style="margin-top:14px" onclick="diagnosticoPlanilla()">🩺 Diagnóstico de la planilla</button>
+        <p class="sub" style="margin-top:6px;">Muestra qué está viendo el servidor en la hoja "Registros": cuántas filas hay, qué fechas existen y en qué formato quedó guardada la columna de fecha. Úsalo cuando Vista Equipo diga "sin registros para la fecha".</p>
+
+        <button class="btn btn-ghost" style="margin-top:14px" onclick="probarConexion()">🔎 Probar conexión con la planilla</button>
+        <p class="sub" style="margin-top:6px;">Hace una prueba real de lectura y escritura contra la planilla central y muestra exactamente dónde falla. Úsalo cuando un registro aparezca como "sin confirmar".</p>
+        <div id="diagBox" class="hidden" style="margin-top:10px; font-size:12.5px; line-height:1.7; background:var(--card); border-radius:10px; padding:12px 14px; white-space:pre-wrap; word-break:break-word;"></div>
+        <button class="btn" style="margin-top:16px; background:var(--teal); display:flex; align-items:center; gap:8px; justify-content:center;" onclick="showQrModal()">
+          <span style="font-size:18px;">⬡</span> Compartir configuración (QR)
+        </button>
+        <p class="sub" style="margin-top:6px;">Genera un código QR para que los QFs instalen la app ya configurada — sin necesidad de escribir la URL.</p>
+      </div>
+
+      <!-- QR MODAL -->
+      <div id="qrModal" class="hidden" style="position:fixed;inset:0;background:rgba(11,43,48,.85);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="background:var(--white);border-radius:18px;padding:28px 24px;max-width:340px;width:100%;text-align:center;">
+          <h2 style="margin:0 0 6px;">Compartir configuración</h2>
+          <p class="sub" style="margin-bottom:20px;">El QF escanea este código con la cámara del celular. La app se abre lista para usar.</p>
+          <div id="qrContainer" style="display:flex;justify-content:center;margin-bottom:16px;"></div>
+          <p id="qrError" class="hidden" style="color:var(--alert);font-size:13px;margin-bottom:12px;">Primero guarda la URL del Apps Script.</p>
+          <p class="sub" style="font-size:11px;color:var(--muted);margin-bottom:20px;">El QR incluye la URL del Apps Script. No contiene PINs ni datos de validaciones.</p>
+          <button class="btn btn-secondary" onclick="document.getElementById('qrModal').classList.add('hidden')">Cerrar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Medición de tiempo (subestudio)</h2>
+        <p class="sub">Activa esta opción solo durante el período de medición. Agrega en la pantalla de registro un botón para cronometrar la validación, que debe pulsarse al tomar la receta y antes de revisarla. El tiempo entre abrir el formulario y guardar se registra siempre, aunque esta opción esté desactivada.</p>
+        <div id="cronoEstado" class="sub" style="margin-bottom:10px;"></div>
+        <button class="btn btn-secondary" onclick="toggleCrono()" id="btnCrono">Activar medición de tiempo</button>
+      </div>
+
+      <div class="card">
+        <h2>Cambiar PIN de administración</h2>
+        <input type="password" id="newAdminPin" inputmode="numeric" maxlength="4" placeholder="Nuevo PIN">
+        <button class="btn btn-secondary" style="margin-top:12px" onclick="changeAdminPin()">Guardar nuevo PIN</button>
+      </div>
+
+      <div class="card">
+        <h2 style="color:var(--muted);">Integridad del registro</h2>
+        <p class="sub">Para que este registro sirva como evidencia ante el Servicio de Salud, esta app no permite eliminar validaciones ya guardadas — ni desde este dispositivo ni desde la planilla central. Si necesitas corregir un dato, agrégalo como un registro nuevo con una nota aclaratoria en "Detalle".</p>
+      </div>
+
+      <div class="card" style="background:var(--card); border:none;">
+        <h2 style="font-size:15px; color:var(--teal);">Acerca de esta aplicación</h2>
+        <p class="sub" style="color:var(--ink); line-height:1.7;">
+          <b>Registro de Validación de Dispensación</b><br>
+          Creado y desarrollado por <b>Jaqueline Valenzuela</b>, Químico Farmacéutico — Hospital de Pitrufquén<br>
+          Red de Farmacia · Servicio de Salud Araucanía Sur (SSASUR)<br>
+          Primera versión: agosto de 2026 · <span id="appVersionTag">v3.0</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="main" onclick="switchTab('main')"><span class="ico">▭</span>Registrar</button>
+  <button class="tab-btn" data-tab="history" onclick="switchTab('history')"><span class="ico">≣</span>Historial</button>
+  <button class="tab-btn" data-tab="equipo" onclick="switchTab('equipo')"><span class="ico">👥</span>Equipo</button>
+</nav>
+
+<!-- ===================== SCAN MODAL ===================== -->
+<div id="scanModalBg" class="modal-bg hidden">
+  <div class="modal">
+    <h3>Escanear receta</h3>
+    <p class="sub">Apunta la cámara al código de barras.</p>
+    <div id="reader"></div>
+    <button class="btn btn-ghost" onclick="stopScan()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ===================== MANUAL ENTRY MODAL ===================== -->
+<div id="manualModalBg" class="modal-bg hidden">
+  <div class="modal">
+    <h3>Ingresar folio manualmente</h3>
+    <p class="sub">Usa esta opción solo si el código de barras no es legible.</p>
+    <label>N° de receta (folio)</label>
+    <input type="text" id="manualFolio" placeholder="Ej: 47683658">
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeManualEntry()">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitManualFolio()">Continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CONFIRM ENTRY MODAL ===================== -->
+<div id="confirmModalBg" class="modal-bg hidden">
+  <div class="modal">
+    <h3>Registrar validación</h3>
+    <p class="sub">Folio <b id="confirmFolio" style="color:var(--teal); font-family:monospace;"></b></p>
+    <div id="dupWarning" class="banner banner-warn hidden"></div>
+
+    <label style="margin-top:4px;">N° de prescripciones validadas en esta receta</label>
+    <input type="number" id="numPrescripciones" min="1" step="1" value="1" inputmode="numeric">
+
+    <label style="margin-top:4px;">Modalidad de dispensación</label>
+    <select id="modalidadSelect">
+      <option value="Ambulatorio">🩺 Ambulatorio</option>
+      <option value="Hospitalizado">🏥 Hospitalizado</option>
+      <option value="Urgencia">🚑 Urgencia</option>
+      <option value="Gestión Territorial">🚐 Gestión Territorial</option>
+      <option value="Casillero">📦 Casillero</option>
+    </select>
+
+    <label style="margin-top:4px;">Resultado de la validación</label>
+    <div class="choice-row">
+      <div class="choice sel-ok" id="choiceOk" onclick="selectTipo('conforme')">✓ Conforme</div>
+      <div class="choice" id="choiceInt" onclick="selectTipo('intervencion')">⚠ Con intervención</div>
+    </div>
+
+    <div id="detalleWrap" class="hidden">
+      <label>Tipo de observación</label>
+      <select id="detalleCategoria" onchange="onCategoriaChange()">
+        <optgroup label="Receta">
+          <option value="Prescripción ilegible o incompleta">Prescripción ilegible o incompleta</option>
+          <option value="Dosis a confirmar con médico tratante">Dosis a confirmar con médico tratante</option>
+          <option value="Medicamento no disponible / sustitución">Medicamento no disponible / sustitución</option>
+          <option value="Interacción medicamentosa">Interacción medicamentosa</option>
+          <option value="Alergia o reacción adversa previa">Alergia o reacción adversa previa</option>
+          <option value="Duplicidad terapéutica">Duplicidad terapéutica</option>
+          <option value="Vía de administración a aclarar">Vía de administración a aclarar</option>
+          <option value="Identificación de paciente a confirmar">Identificación de paciente a confirmar</option>
+          <option value="Receta vencida o fuera de plazo">Receta vencida o fuera de plazo</option>
+        </optgroup>
+        <!-- Redacción alineada con la pauta validada de Alvarado, Ossa y Bustos
+             (Rev Med Chile 2014;142:1547-52), para permitir comparabilidad
+             directa con la línea de base de 2013. -->
+        <optgroup label="Preparación en farmacia">
+          <option value="Medicamentos rotulados con indicaciones médicas incorrectas">Rotulado con indicaciones médicas incorrectas</option>
+          <option value="Medicamentos rotulados con indicaciones médicas incompletas">Rotulado con indicaciones médicas incompletas</option>
+          <option value="Medicamento empacado no corresponde al rotulado en la etiqueta">Medicamento empacado no corresponde al rotulado</option>
+          <option value="Medicamento no corresponde a la forma farmacéutica recetada">No corresponde a la forma farmacéutica recetada</option>
+          <option value="No se preparó uno o más medicamentos prescritos en la receta médica">No se preparó un medicamento prescrito</option>
+          <option value="Cantidad total del medicamento empacado incorrecto">Cantidad total empacada incorrecta</option>
+          <option value="Hay preparación de medicamentos que no están prescritos en la receta">Se preparó un medicamento no prescrito</option>
+        </optgroup>
+        <option value="Otro">Otro (especificar)</option>
+      </select>
+      <div id="detalleOtroWrap" class="hidden">
+        <label>Especifica</label>
+        <input type="text" id="detalleInput" placeholder="Describe brevemente la observación">
+      </div>
+      <button type="button" class="btn btn-secondary" style="margin-top:10px" onclick="addObservacion()">+ Agregar esta observación</button>
+
+      <div id="observacionesListWrap" style="margin-top:14px;">
+        <label style="margin-top:0;">Observaciones agregadas a esta receta</label>
+        <div id="observacionesList"></div>
+      </div>
+
+      <!-- Dominio A de la clasificación PCNE: aceptación de la intervención -->
+      <label style="margin-top:14px;">¿Qué ocurrió con la intervención?</label>
+      <select id="aceptacionSelect">
+        <option value="">— Selecciona una opción —</option>
+        <option value="Aceptada">✓ Aceptada — se corrigió</option>
+        <option value="Aceptada parcialmente">◐ Aceptada parcialmente</option>
+        <option value="No aceptada">✗ No aceptada — se mantuvo la indicación</option>
+        <option value="Resuelta en farmacia">🏥 Resuelta en farmacia (sin consultar al prescriptor)</option>
+        <option value="Pendiente">⏳ Pendiente de respuesta</option>
+      </select>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeConfirmModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEntry()">Guardar registro</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+/* ============ STORAGE HELPERS ============ */
+const K_QFS = 'rvd_qfs', K_EST = 'rvd_establecimientos', K_REG = 'rvd_registros',
+      K_SESSION = 'rvd_session', K_ADMIN_PIN = 'rvd_admin_pin', K_SHEET_URL = 'rvd_sheet_url',
+      K_CRONO = 'rvd_crono_activo';
+
+function load(key, fallback){
+  try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch(e){ return fallback; }
+}
+function save(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+function getQfs(){ return load(K_QFS, []); }
+function getEstablecimientos(){
+  return load(K_EST, ["Pitrufquén","Toltén","Gorbea"]);
+}
+function getRegistros(){ return load(K_REG, []); }
+function getSession(){ return load(K_SESSION, null); }
+function getAdminPin(){ return load(K_ADMIN_PIN, "1702"); }
+function getSheetUrl(){ return load(K_SHEET_URL, ""); }
+function getCronoActivo(){ return load(K_CRONO, false) === true; }
+
+/* ============ INIT ============ */
+let pendingFolio = null, pendingTipo = null, html5QrCode = null, pendingObservaciones = [];
+
+/* ============ MEDICIÓN DE TIEMPO (subestudio de tesis) ============
+ * Dos marcas distintas, con significados distintos:
+ *  · tsAbierto   → instante en que se abre el formulario de registro.
+ *                  Se toma SIEMPRE. La diferencia con el guardado mide el
+ *                  tiempo administrativo de registro, no el trabajo clínico.
+ *  · cronoInicio → instante en que la QF declara que toma la receta, antes
+ *                  de revisarla. Solo existe con la medición activada.
+ *                  La diferencia con el guardado mide el tiempo clínico
+ *                  completo de validación, que es el que se contrasta con
+ *                  los rendimientos de RPE N°20.
+ */
+let tsAbierto = null, cronoInicio = null, cronoTimer = null;
+
+function refrescarCronoUI(){
+  const card = document.getElementById('cronoCard');
+  if(!card) return;
+  card.classList.toggle('hidden', !getCronoActivo());
+  const corriendo = cronoInicio !== null;
+  document.getElementById('cronoIdle').classList.toggle('hidden', corriendo);
+  document.getElementById('cronoRunning').classList.toggle('hidden', !corriendo);
+}
+
+function iniciarCrono(){
+  cronoInicio = Date.now();
+  refrescarCronoUI();
+  clearInterval(cronoTimer);
+  cronoTimer = setInterval(() => {
+    if(cronoInicio === null){ clearInterval(cronoTimer); return; }
+    const s = Math.round((Date.now() - cronoInicio) / 1000);
+    const el = document.getElementById('cronoElapsed');
+    if(el) el.textContent = s < 60 ? s + 's' : Math.floor(s/60) + 'm ' + (s%60) + 's';
+  }, 1000);
+}
+
+function cancelarCrono(){
+  cronoInicio = null;
+  clearInterval(cronoTimer);
+  refrescarCronoUI();
+}
+
+function toggleCrono(){
+  const nuevo = !getCronoActivo();
+  save(K_CRONO, nuevo);
+  if(!nuevo) cancelarCrono();
+  refrescarCronoUI();
+  renderCronoAdmin();
+  alert(nuevo
+    ? 'Medición de tiempo activada en este dispositivo.\n\nEn la pantalla de registro aparecerá el botón para cronometrar la validación.'
+    : 'Medición de tiempo desactivada.');
+}
+
+function renderCronoAdmin(){
+  const box = document.getElementById('cronoEstado');
+  const btn = document.getElementById('btnCrono');
+  if(!box || !btn) return;
+  const activo = getCronoActivo();
+  box.innerHTML = activo
+    ? '<b style="color:#C98A2C;">Activada</b> en este dispositivo.'
+    : 'Desactivada. El registro funciona con normalidad.';
+  btn.textContent = activo ? 'Desactivar medición de tiempo' : 'Activar medición de tiempo';
+}
+
+/* ============ MOTOR DE CÁLCULO DE HORAS CLÍNICAS QF ============
+ * Basado en RPE N°20 (Minsal, "Orientaciones para la Planificación y
+ * Programación en Red 2025") — Criterios técnicos para la programación
+ * de actividades de Químicos Farmacéuticos.
+ *
+ * Verificado contra el documento oficial (tabla de rendimientos):
+ * - "Dispensación y validación de prescripción" = 30 act/hora → 0.0333 h/receta
+ *   (usado para Ambulatorio y Hospitalizado).
+ * - "Dispensación y validación de prescripción para coordinación
+ *   territorial de fármacos" = 20 act/hora → 0.05 h/receta (Gestión Territorial).
+ * - "Revisión de la medicación sin entrevista" = 3 act/hora → 0.333 h
+ *   (usado para todo registro marcado "Con intervención").
+ *
+ * Nota: "Casillero" no figura como actividad textual en la tabla — la
+ * Jefatura de Farmacia confirmó que debe tomar el mismo tiempo que
+ * "Gestión Territorial" (20 act/hora = 0.05 h/receta), por tratarse de
+ * un canal de entrega equivalente dentro de las categorías oficiales.
+ */
+const TIEMPO_HORAS_RECETA_ESTANDAR = 0.0333;      // Ambulatorio / Hospitalizado / Urgencia — 30 recetas/hora
+const TIEMPO_HORAS_RECETA_ESPECIALIZADO = 0.05;   // Gestión Territorial / Casillero (asimilado a "despacho en domicilio") — 20 recetas/hora
+const TIEMPO_HORAS_INTERVENCION_FIJO = 0.333;     // Con intervención — "Revisión de la medicación sin entrevista", 3/hora
+
+function calcularTiempoClinico(entry){
+  // El cálculo es por RECETA (cada registro = 1 receta validada), no por
+  // N° de prescripciones. Ese campo se conserva solo como dato estadístico
+  // para el CSV/SOME, sin intervenir en esta fórmula — a pedido de Jefatura.
+  if(entry.tipo === 'intervencion'){
+    return TIEMPO_HORAS_INTERVENCION_FIJO;
+  }
+  const esEspecializado = entry.modalidad === 'Casillero' || entry.modalidad === 'Gestión Territorial';
+  const tarifa = esEspecializado ? TIEMPO_HORAS_RECETA_ESPECIALIZADO : TIEMPO_HORAS_RECETA_ESTANDAR;
+  return Math.round(tarifa * 10000) / 10000;
+}
+
+
+/* AUDITORÍA 2026-08-12 — RECUPERACIÓN DE REGISTROS.
+ * La versión anterior marcaba "sincronizado" sin ninguna prueba de que el
+ * registro hubiera llegado a la planilla. Por eso hay registros antiguos
+ * marcados como enviados que en realidad nunca se guardaron.
+ * Esta migración los vuelve a poner en revisión (una sola vez por
+ * dispositivo): la app comprueba cuáles están realmente en la planilla y
+ * reenvía únicamente los que falten. El servidor descarta ids repetidos,
+ * así que no se generan duplicados. */
+function migrarSincronizacionDudosa(){
+  const FLAG = 'rvd_migracion_sync_v2';
+  try { if(localStorage.getItem(FLAG)) return; } catch(e){ return; }
+  const registros = getRegistros();
+  let n = 0;
+  registros.forEach(r => {
+    if(r.syncState === undefined){
+      r.synced = false;
+      r.syncState = 'pendiente';
+      r.syncError = '';
+      n++;
+    }
+  });
+  if(n) save(K_REG, registros);
+  try { localStorage.setItem(FLAG, '1'); } catch(e){}
+}
+
+/* MEJORA 2026-08-13 — RECUPERACIÓN DESDE LA PLANILLA.
+ * "Registrado hoy" e "Historial" siempre leyeron solo lo guardado en el
+ * propio celular. Si ese almacenamiento local se pierde por cualquier
+ * motivo (el navegador lo limpia, se cambia de celular, etc.) esas dos
+ * vistas quedan vacías aunque la planilla central tenga todo intacto
+ * — como le pasó a Jaqueline: la planilla tenía sus registros, pero su
+ * celular ya no. Ahora la app puede reconstruir el historial local
+ * leyéndolo de vuelta desde la planilla, filtrado por el propio QF.
+ * Se ejecuta sola una vez por sesión y también hay un botón manual. */
+let _recuperacionHecha = false;
+function recuperarMisRegistrosDesdeServidor(cb, avisar){
+  const session = getSession();
+  const url = getSheetUrl();
+  if(!session || !url){ if(cb) cb(0); return; }
+
+  fetch(url + '?action=registros&qfName=' + encodeURIComponent(session.qfName))
+    .then(r => r.json())
+    .then(d => {
+      if(!(d && d.status === 'ok' && Array.isArray(d.registros))){ if(cb) cb(0); return; }
+      const locales = getRegistros();
+      const idsLocales = new Set(locales.map(r => String(r.id)));
+      let agregados = 0;
+      d.registros.forEach(r => {
+        if(!r.id || idsLocales.has(String(r.id))) return;
+        let obs = [];
+        try { obs = JSON.parse(r.observaciones); if(!Array.isArray(obs)) obs = []; } catch(e){ obs = []; }
+        locales.push({
+          id: String(r.id), folio: r.folio, qfId: r.qfId || session.qfId, qfName: r.qfName || session.qfName,
+          establecimiento: String(r.establecimiento || '').trim(), fecha: r.fecha, hora: r.hora,
+          tipo: r.tipo, numPrescripciones: r.numPrescripciones, modalidad: r.modalidad,
+          observaciones: obs, categoria: r.categoria || '', detalle: r.detalle || '',
+          tiempoClinicoHoras: parseFloat(r.tiempoClinicoHoras) || 0,
+          synced: true, syncState: 'confirmado', syncError: ''
+        });
+        idsLocales.add(String(r.id));
+        agregados++;
+      });
+      if(agregados) save(K_REG, locales);
+      renderTodaySafe();
+      if(document.getElementById('viewHistory') && !document.getElementById('viewHistory').classList.contains('hidden')) renderHistory();
+      if(avisar) alert(agregados > 0
+        ? `Se recuperaron ${agregados} registro(s) desde la planilla central.`
+        : 'No había registros nuevos que recuperar — este dispositivo ya estaba al día.');
+      if(cb) cb(agregados);
+    })
+    .catch(() => { if(avisar) alert('No se pudo conectar con la planilla para recuperar los registros. Intenta de nuevo.'); if(cb) cb(0); });
+}
+
+window.onload = function(){
+  if(!load(K_EST, null)) save(K_EST, getEstablecimientos());
+  refreshLoginView();
+  const session = getSession();
+  if(session){ showMain(); } else { showLogin(); }
+  if(getSheetUrl()){
+    migrarSincronizacionDudosa();
+    // Primero comprobamos contra la planilla qué llegó de verdad y solo
+    // después reenviamos lo que realmente falta (evita reenviar cientos
+    // de registros que ya estaban bien guardados).
+    verificarEnPlanilla(() => { syncPending(true); });
+    fetchServerLists(() => { refreshLoginView(); });
+    if(session && !_recuperacionHecha){
+      _recuperacionHecha = true;
+      recuperarMisRegistrosDesdeServidor();
+    }
+  }
+};
+
+/* ============ SYNC QF / ESTABLECIMIENTOS LISTS ============ */
+function fetchServerLists(onDone){
+  const url = getSheetUrl();
+  if(!url) { if(onDone) onDone(); return; }
+  fetch(url, { method: 'GET' })
+    .then(r => r.json())
+    .then(data => {
+      if(data && data.status === 'ok'){
+        if(Array.isArray(data.qfs)){
+          if(data.qfs.length > 0){
+            save(K_QFS, data.qfs); // server has data — it's the source of truth
+          } else {
+            const localQfs = getQfs();
+            // OJO: se envuelve en una función. Con forEach(pushQfAdd) directo,
+            // el índice del arreglo llegaba como segundo argumento y activaba
+            // alertas falsas a partir del segundo QF.
+            if(localQfs.length > 0) localQfs.forEach(q => pushQfAdd(q)); // servidor vacío — se siembra desde este dispositivo
+          }
+        }
+        if(Array.isArray(data.establecimientos)){
+          if(data.establecimientos.length > 0){
+            save(K_EST, data.establecimientos);
+          } else {
+            const localEsts = getEstablecimientos();
+            if(localEsts.length > 0) localEsts.forEach(e => pushEstAdd(e));
+          }
+        }
+      }
+      if(onDone) onDone();
+    })
+    .catch(() => { if(onDone) onDone(); });
+}
+/* AUDITORÍA 2026-08-12: estas operaciones también usaban mode:'no-cors'.
+   Si la planilla central rechazaba el alta de un QF o de un establecimiento,
+   el fallo pasaba inadvertido: la persona quedaba creada SOLO en ese
+   dispositivo y nunca aparecía para el resto del equipo — el mismo síntoma
+   que vimos al incorporar hospitales nuevos. Ahora se lee la respuesta y
+   se avisa cuando el servidor no confirma. */
+function pushAdmin(payload, descripcion, avisar){
+  const url = getSheetUrl();
+  if(!url){
+    if(avisar) alert('Guardado solo en este dispositivo: todavía no hay URL de planilla central configurada.');
+    return;
+  }
+  const fallo = () => {
+    if(avisar) alert('La planilla central no confirmó: ' + descripcion + '.\n\n'
+      + 'Quedó guardado en este dispositivo. Usa "Probar conexión con la planilla" '
+      + 'en el panel de administración para ver qué está fallando.');
+  };
+  fetch(url, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  })
+    .then(r => r.text())
+    .then(txt => {
+      let j = null; try { j = JSON.parse(txt); } catch(e){}
+      if(!(j && j.status === 'ok')) fallo();
+    })
+    .catch(fallo);
+}
+function pushQfAdd(qf, avisar){
+  pushAdmin({ type:'qf_add', id: qf.id, name: qf.name, pin: String(qf.pin),
+              establecimiento: String(qf.establecimiento || '').trim() },
+            'alta del QF ' + qf.name, avisar);
+}
+function pushQfRemove(id, avisar){
+  pushAdmin({ type:'qf_remove', id }, 'eliminación del QF', avisar);
+}
+function pushEstAdd(name, avisar){
+  pushAdmin({ type:'est_add', name: String(name || '').trim() },
+            'alta del establecimiento ' + name, avisar);
+}
+function pushEstRemove(name, avisar){
+  pushAdmin({ type:'est_remove', name: String(name || '').trim() },
+            'eliminación del establecimiento ' + name, avisar);
+}
+
+/* ============ LOGIN ============ */
+function refreshLoginView(){
+  const qfs = getQfs();
+  const noQfs = document.getElementById('loginNoQfs');
+  const form = document.getElementById('loginForm');
+
+  // establecimiento dropdowns (bootstrap form + login form) always reflect current list
+  const ests = getEstablecimientos();
+  const estOptionsHtml = ests.map(e => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
+  const firstEstSel = document.getElementById('firstQfEst');
+  if(firstEstSel) firstEstSel.innerHTML = estOptionsHtml;
+
+  if(qfs.length === 0){
+    noQfs.classList.remove('hidden'); form.classList.add('hidden');
+    return;
+  }
+  noQfs.classList.add('hidden'); form.classList.remove('hidden');
+
+  const estSel = document.getElementById('loginEstSelect');
+  const prevEst = estSel.value;
+  estSel.innerHTML = estOptionsHtml;
+  if(prevEst && ests.includes(prevEst)) estSel.value = prevEst;
+
+  populateQfSelectForEst();
+}
+
+function populateQfSelectForEst(){
+  const est = document.getElementById('loginEstSelect').value;
+  const qfs = getQfs().filter(q => q.establecimiento === est);
+  const sel = document.getElementById('loginQfSelect');
+  const noQfMsg = document.getElementById('loginNoQfForEst');
+  if(qfs.length === 0){
+    sel.innerHTML = '';
+    sel.disabled = true;
+    noQfMsg.classList.remove('hidden');
+  } else {
+    sel.disabled = false;
+    noQfMsg.classList.add('hidden');
+    sel.innerHTML = qfs.map(q => `<option value="${q.id}">${escapeHtml(q.name)}</option>`).join('');
+  }
+}
+
+function onLoginEstChange(){
+  populateQfSelectForEst();
+}
+
+function createFirstQf(){
+  const name = document.getElementById('firstQfName').value.trim();
+  const pin = document.getElementById('firstQfPin').value.trim();
+  const establecimiento = document.getElementById('firstQfEst').value;
+  if(!name || !/^\d{4}$/.test(pin)){ alert('Ingresa un nombre y un PIN de 4 dígitos.'); return; }
+  const qfs = getQfs();
+  const newQf = {id: 'qf_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+                 name, pin: String(pin), establecimiento: String(establecimiento || '').trim()};
+  qfs.push(newQf);
+  save(K_QFS, qfs);
+  refreshLoginView();
+  pushQfAdd(newQf, true);
+}
+
+function doLogin(){
+  const sel = document.getElementById('loginQfSelect');
+  const qfId = sel.value;
+  const pin = document.getElementById('loginPin').value.trim();
+  const est = document.getElementById('loginEstSelect').value;
+  const qf = getQfs().find(q => q.id === qfId);
+  // AUDITORÍA 2026-08-12: se compara con String() en ambos lados.
+  // Google Sheets guarda el PIN como número (2102), y el input del
+  // teclado devuelve texto ("2102"). Con === estricto nunca coincidían
+  // y el PIN se rechazaba, sobre todo al reingresar tras cerrar turno
+  // o en un dispositivo nuevo.
+  if(!qf || String(qf.pin).trim() !== String(pin).trim()){
+    document.getElementById('loginError').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('loginError').classList.add('hidden');
+  save(K_SESSION, {qfId: qf.id, qfName: qf.name, establecimiento: est});
+  document.getElementById('loginPin').value = '';
+  showMain();
+}
+
+function logout(){
+  localStorage.removeItem(K_SESSION);
+  showLogin();
+}
+
+function showLogin(){
+  refreshLoginView();
+  document.getElementById('viewLogin').classList.remove('hidden');
+  document.getElementById('viewMain').classList.add('hidden');
+  document.getElementById('viewHistory').classList.add('hidden');
+  document.getElementById('viewEquipo').classList.add('hidden');
+  document.getElementById('viewAdmin').classList.add('hidden');
+}
+
+function showMain(){
+  const session = getSession();
+  document.getElementById('sessSummary').textContent = session.qfName + ' · ' + session.establecimiento;
+  document.getElementById('viewLogin').classList.add('hidden');
+  document.getElementById('viewMain').classList.remove('hidden');
+  document.getElementById('viewHistory').classList.add('hidden');
+  document.getElementById('viewAdmin').classList.add('hidden');
+  switchTab('main');
+  renderToday();
+  refrescarCronoUI();
+}
+
+/* ============ TABS ============ */
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('viewMain').classList.toggle('hidden', tab !== 'main');
+  document.getElementById('viewHistory').classList.toggle('hidden', tab !== 'history');
+  document.getElementById('viewEquipo').classList.toggle('hidden', tab !== 'equipo');
+  document.getElementById('viewAdmin').classList.add('hidden');
+  if(tab === 'equipo') initEquipoTab();
+  if(tab === 'history'){
+    const estSel = document.getElementById('histEstFilter');
+    estSel.innerHTML = '<option value="">Todos</option>' + getEstablecimientos().map(e => `<option>${escapeHtml(e)}</option>`).join('');
+    const today = todayStr();
+    if(!document.getElementById('histFrom').value) document.getElementById('histFrom').value = today;
+    if(!document.getElementById('histTo').value) document.getElementById('histTo').value = today;
+    renderHistory();
+  }
+}
+
+/* ============ SCANNING ============ */
+function startScan(){
+  document.getElementById('scanModalBg').classList.remove('hidden');
+  html5QrCode = new Html5Qrcode("reader");
+  const config = { fps: 12, qrbox: { width: 260, height: 120 } };
+  html5QrCode.start(
+    { facingMode: "environment" },
+    config,
+    (decodedText) => { onScanSuccess(decodedText); },
+    (err) => { /* ignore per-frame scan misses */ }
+  ).catch((err) => {
+    document.getElementById('reader').innerHTML =
+      '<div style="padding:20px;color:#fff;text-align:center;font-size:13px;">No se pudo acceder a la cámara. Verifica los permisos, o usa el ingreso manual.</div>';
+  });
+}
+
+function stopScan(){
+  document.getElementById('scanModalBg').classList.add('hidden');
+  if(html5QrCode){
+    html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
+  }
+}
+
+function onScanSuccess(text){
+  stopScan();
+  openConfirmModal(text.trim());
+}
+
+/* ============ MANUAL ENTRY ============ */
+function openManualEntry(){
+  document.getElementById('manualFolio').value = '';
+  document.getElementById('manualModalBg').classList.remove('hidden');
+}
+function closeManualEntry(){ document.getElementById('manualModalBg').classList.add('hidden'); }
+function submitManualFolio(){
+  const folio = document.getElementById('manualFolio').value.trim();
+  if(!folio){ alert('Ingresa el folio de la receta.'); return; }
+  closeManualEntry();
+  openConfirmModal(folio);
+}
+
+/* ============ CONFIRM MODAL ============ */
+function openConfirmModal(folio){
+  pendingFolio = folio;
+  pendingTipo = 'conforme';
+  pendingObservaciones = [];
+  tsAbierto = Date.now();
+  document.getElementById('aceptacionSelect').value = '';
+  document.getElementById('confirmFolio').textContent = folio;
+  document.getElementById('choiceOk').classList.add('sel-ok');
+  document.getElementById('choiceInt').classList.remove('sel-int');
+  document.getElementById('detalleWrap').classList.add('hidden');
+  document.getElementById('detalleCategoria').selectedIndex = 0;
+  document.getElementById('detalleOtroWrap').classList.add('hidden');
+  document.getElementById('detalleInput').value = '';
+  document.getElementById('numPrescripciones').value = '1';
+  document.getElementById('modalidadSelect').selectedIndex = 0;
+  renderObservacionesList();
+
+  const today = todayStr();
+  const dup = getRegistros().find(r => r.folio === folio && r.fecha === today);
+  const dupBox = document.getElementById('dupWarning');
+  if(dup){
+    dupBox.classList.remove('hidden');
+    dupBox.textContent = `Este folio ya fue registrado hoy a las ${dup.hora} por ${dup.qfName}. Verifica antes de continuar.`;
+  } else {
+    dupBox.classList.add('hidden');
+  }
+  document.getElementById('confirmModalBg').classList.remove('hidden');
+}
+function closeConfirmModal(){
+  document.getElementById('confirmModalBg').classList.add('hidden');
+  pendingFolio = null;
+}
+function selectTipo(tipo){
+  pendingTipo = tipo;
+  document.getElementById('choiceOk').classList.toggle('sel-ok', tipo === 'conforme');
+  document.getElementById('choiceInt').classList.toggle('sel-int', tipo === 'intervencion');
+  document.getElementById('detalleWrap').classList.toggle('hidden', tipo !== 'intervencion');
+  if(tipo === 'conforme'){ pendingObservaciones = []; renderObservacionesList(); }
+}
+function onCategoriaChange(){
+  const cat = document.getElementById('detalleCategoria').value;
+  document.getElementById('detalleOtroWrap').classList.toggle('hidden', cat !== 'Otro');
+}
+function addObservacion(){
+  const categoria = document.getElementById('detalleCategoria').value;
+  const otroTexto = document.getElementById('detalleInput').value.trim();
+  if(categoria === 'Otro' && !otroTexto){
+    alert('Describe brevemente esta observación antes de agregarla.'); return;
+  }
+  pendingObservaciones.push({ categoria, detalle: categoria === 'Otro' ? otroTexto : '' });
+  document.getElementById('detalleCategoria').selectedIndex = 0;
+  document.getElementById('detalleInput').value = '';
+  document.getElementById('detalleOtroWrap').classList.add('hidden');
+  renderObservacionesList();
+}
+function removeObservacion(i){
+  pendingObservaciones.splice(i, 1);
+  renderObservacionesList();
+}
+function renderObservacionesList(){
+  const wrap = document.getElementById('observacionesList');
+  const outer = document.getElementById('observacionesListWrap');
+  if(pendingObservaciones.length === 0){
+    outer.classList.add('hidden');
+    wrap.innerHTML = '';
+    return;
+  }
+  outer.classList.remove('hidden');
+  wrap.innerHTML = pendingObservaciones.map((o, i) => `<div class="obs-row">
+      <div><b>${escapeHtml(o.categoria)}</b>${o.detalle ? `<span class="d">${escapeHtml(o.detalle)}</span>` : ''}</div>
+      <button onclick="removeObservacion(${i})" title="Quitar">✕</button>
+    </div>`).join('');
+}
+function saveEntry(){
+  if(!pendingFolio) return;
+  if(pendingTipo === 'intervencion' && pendingObservaciones.length === 0){
+    alert('Agrega al menos una observación (o cambia el resultado a "Conforme").'); return;
+  }
+  const aceptacion = document.getElementById('aceptacionSelect').value;
+  if(pendingTipo === 'intervencion' && !aceptacion){
+    alert('Indica qué ocurrió con la intervención antes de guardar.'); return;
+  }
+  const numPresc = parseInt(document.getElementById('numPrescripciones').value, 10);
+  if(!numPresc || numPresc < 1){
+    alert('Ingresa el número de prescripciones validadas (mínimo 1).'); return;
+  }
+  const session = getSession();
+  if(!session){
+    alert('Tu turno se cerró. Vuelve a iniciar turno con tu PIN antes de registrar.');
+    closeConfirmModal(); showLogin(); return;
+  }
+  const now = new Date();
+  const registros = getRegistros();
+  const entry = {
+    // AUDITORÍA 2026-08-12: se agrega un sufijo aleatorio al id.
+    // Antes era solo 'r_' + Date.now(): dos dispositivos que registraran
+    // en el mismo milisegundo generaban el MISMO id, y el servidor —que
+    // descarta ids repetidos para evitar duplicados— borraba en silencio
+    // el registro del segundo establecimiento.
+    id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    folio: pendingFolio,
+    qfId: session.qfId,
+    qfName: session.qfName,
+    establecimiento: String(session.establecimiento || '').trim(),
+    fecha: todayStr(),
+    hora: now.toTimeString().slice(0,8),
+    tipo: pendingTipo,
+    numPrescripciones: numPresc,
+    modalidad: document.getElementById('modalidadSelect').value,
+    aceptacion: pendingTipo === 'intervencion' ? aceptacion : '',
+    // Tiempo administrativo de registro: siempre disponible
+    segundosRegistro: tsAbierto ? Math.round((Date.now() - tsAbierto) / 1000) : '',
+    // Tiempo clínico completo de validación: solo con la medición activada
+    segundosValidacion: cronoInicio ? Math.round((Date.now() - cronoInicio) / 1000) : '',
+    observaciones: pendingTipo === 'intervencion' ? pendingObservaciones.slice() : [],
+    categoria: pendingTipo === 'intervencion' ? pendingObservaciones.map(o => o.categoria).join(' | ') : '',
+    detalle: pendingTipo === 'intervencion' ? pendingObservaciones.filter(o => o.detalle).map(o => `${o.categoria}: ${o.detalle}`).join(' | ') : '',
+    synced: false,
+    syncState: 'pendiente',
+    syncError: ''
+  };
+  entry.tiempoClinicoHoras = calcularTiempoClinico(entry);
+  registros.push(entry);
+  save(K_REG, registros);
+  cancelarCrono();   // la medición termina con el registro guardado
+  tsAbierto = null;
+  closeConfirmModal();
+  renderToday();
+  syncEntry(entry);
+}
+
+/* ============ SYNC TO CENTRAL SHEET ============
+ * AUDITORÍA 2026-08-12 — CORRECCIÓN CRÍTICA.
+ *
+ * Antes el envío usaba mode:'no-cors'. Con esa opción el navegador
+ * devuelve una respuesta OPACA: el .then() se ejecuta SIEMPRE, aunque
+ * el servidor haya rechazado la solicitud, aunque haya redirigido a una
+ * pantalla de login de Google, o aunque el script ni siquiera se haya
+ * ejecutado. El resultado era que la app marcaba "☁ sincronizado" sin
+ * tener ninguna prueba de que el registro hubiera llegado a la planilla.
+ * Ese es el motivo por el que Puerto Saavedra, Loncoche y Vilcún veían
+ * "sincronizado" en el celular mientras la planilla central quedaba vacía.
+ *
+ * Ahora el estado de cada registro solo pasa a "confirmado" cuando existe
+ * evidencia real: la respuesta JSON del servidor, o —si esa respuesta no
+ * se puede leer— la verificación leyendo de vuelta la planilla con doGet
+ * (la misma vía que ya usa Vista Equipo y que sabemos que funciona).
+ * =============================================================== */
+
+function setSyncState(id, estado, mensaje){
+  const registros = getRegistros();
+  const r = registros.find(x => x.id === id);
+  if(!r) return;
+  r.syncState = estado;                  // 'enviado' | 'confirmado' | 'error'
+  r.syncError = mensaje || '';
+  r.synced    = (estado === 'confirmado'); // solo true con evidencia real
+  save(K_REG, registros);
+  renderTodaySafe();
+  updateSheetUrlStatusSafe();
+}
+
+function syncEntry(entry){
+  const url = getSheetUrl();
+  if(!url) return; // sin planilla central configurada — queda solo local
+  setSyncState(entry.id, 'enviado', '');
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // tipo "simple": no dispara preflight
+    body: JSON.stringify(entry)
+  })
+  .then(r => r.text())
+  .then(txt => {
+    let j = null;
+    try { j = JSON.parse(txt); } catch(e){ j = null; }
+    if(j && j.message && j.status !== 'ok'){
+      setSyncState(entry.id, 'error', j.message);
+    }
+    // IMPORTANTE: aunque el servidor responda "ok", NO damos el registro
+    // por confirmado todavía. Un "ok" solo dice que la solicitud se
+    // procesó, no que la fila haya quedado escrita en la planilla (eso es
+    // justamente lo que fallaba cuando dos hospitales escribían a la vez).
+    // La única prueba válida es volver a leer la planilla.
+    programarVerificacion();
+  })
+  .catch(() => {
+    // El POST igualmente sale del dispositivo; solo no pudimos leer la
+    // respuesta. Verificamos contra la planilla para saber la verdad.
+    programarVerificacion();
+  });
+}
+
+/* --- Verificación real contra la planilla central (vía doGet) ---
+ * MEJORA 2026-08-13: antes cada registro nuevo CANCELABA la verificación
+ * ya programada y la volvía a poner en 3 segundos (clearTimeout + reset).
+ * Si alguien registraba recetas seguidas más rápido que ese margen —como
+ * pasa en un turno de Hospitalizado con varias validaciones seguidas—, la
+ * verificación se postergaba una y otra vez y nunca llegaba a dispararse.
+ * Los registros quedaban mostrando "⚠ sin confirmar — reintentando" de
+ * forma indefinida, aunque los datos ya estuvieran bien guardados en la
+ * planilla (solo la pantalla se quedaba atrasada, no había pérdida real).
+ * Ahora, si ya hay una verificación en camino, las llamadas siguientes NO
+ * la reprograman — se aprovechan de la que ya está por disparar, que de
+ * todas formas revisa TODOS los pendientes en ese momento. Así el peor
+ * caso queda acotado a unos pocos segundos, sin importar cuánta actividad
+ * haya en el medio. */
+let _verifTimer = null;
+function programarVerificacion(delay){
+  if(_verifTimer) return; // ya hay una verificación programada — se deja correr
+  _verifTimer = setTimeout(() => { _verifTimer = null; verificarEnPlanilla(); }, delay || 3000);
+}
+
+function verificarEnPlanilla(cb){
+  const url = getSheetUrl();
+  if(!url){ if(cb) cb(null); return; }
+  const pendientes = getRegistros().filter(r => !r.synced);
+  if(pendientes.length === 0){ if(cb) cb(new Set()); return; }
+
+  // Una consulta por cada fecha pendiente (normalmente solo hoy).
+  // NO filtramos por establecimiento a propósito: así el registro se
+  // detecta aunque haya quedado guardado con el nombre de establecimiento
+  // escrito distinto (con tilde, con espacio de más, etc.).
+  const fechas = Array.from(new Set(pendientes.map(r => r.fecha)));
+  const encontrados = new Set();
+  let restantes = fechas.length;
+
+  fechas.forEach(f => {
+    fetch(url + '?action=registros&fecha=' + encodeURIComponent(f))
+      .then(r => r.json())
+      .then(d => {
+        if(d && d.status === 'ok' && Array.isArray(d.registros)){
+          d.registros.forEach(x => encontrados.add(String(x.id)));
+        }
+      })
+      .catch(() => {})
+      .then(() => {
+        restantes--;
+        if(restantes <= 0) aplicarVerificacion(encontrados, cb);
+      });
+  });
+}
+
+function aplicarVerificacion(encontrados, cb){
+  const registros = getRegistros();
+  registros.forEach(r => {
+    if(r.synced) return;
+    if(encontrados.has(String(r.id))){
+      r.synced = true; r.syncState = 'confirmado'; r.syncError = '';
+    } else {
+      r.syncState = 'error';
+      r.syncError = 'Enviado, pero todavía no aparece en la planilla central.';
+    }
+  });
+  save(K_REG, registros);
+  renderTodaySafe();
+  updateSheetUrlStatusSafe();
+  if(cb) cb(encontrados);
+}
+
+function syncPending(silent){
+  const url = getSheetUrl();
+  if(!url){ if(!silent) alert('Primero guarda la URL de la planilla central.'); return; }
+  const pending = getRegistros().filter(r => !r.synced);
+  if(pending.length === 0){
+    if(!silent) alert('No hay registros pendientes de sincronizar.');
+    return;
+  }
+  // Envío secuencial y espaciado: evita que varias solicitudes compitan
+  // entre sí por el bloqueo de escritura del servidor.
+  let i = 0;
+  (function siguiente(){
+    if(i >= pending.length){ programarVerificacion(3500); return; }
+    syncEntry(pending[i++]);
+    setTimeout(siguiente, 400);
+  })();
+  if(!silent) alert(`Reintentando el envío de ${pending.length} registro(s)…`);
+}
+
+window.addEventListener('online', () => { syncPending(true); });
+
+// Reintento automático periódico: si un registro quedó sin confirmar,
+// la app lo vuelve a intentar sola cada 2 minutos, sin que la QF
+// tenga que acordarse de entrar al panel de administración.
+setInterval(() => { if(getSheetUrl()) syncPending(true); }, 120000);
+
+/* Envoltorios seguros: estas funciones se llaman desde callbacks que
+   pueden dispararse en la pantalla de login (sin turno iniciado).
+   Antes, renderToday() reventaba con "session is null" y dejaba el
+   registro marcado incorrectamente. */
+function renderTodaySafe(){ try{ if(getSession()) renderToday(); }catch(e){} }
+function updateSheetUrlStatusSafe(){ try{ updateSheetUrlStatus(); }catch(e){} }
+
+/* ============ TODAY LIST ============ */
+function renderToday(){
+  const session = getSession();
+  if(!session) return; // turno cerrado: no hay nada que dibujar
+  const today = todayStr();
+  const regs = getRegistros().filter(r => r.fecha === today && r.qfId === session.qfId).sort((a,b) => b.hora.localeCompare(a.hora));
+  document.getElementById('statHoy').textContent = regs.length;
+  document.getElementById('statPresc').textContent = regs.reduce((sum,r) => sum + (r.numPrescripciones || 1), 0);
+  document.getElementById('statInt').textContent = regs.filter(r => r.tipo === 'intervencion').length;
+  const totalTiempo = regs.reduce((sum,r) => sum + (r.tiempoClinicoHoras || calcularTiempoClinico(r)), 0);
+  document.getElementById('statTiempoClinico').textContent = totalTiempo.toFixed(2);
+
+  const wrap = document.getElementById('todayList');
+  if(regs.length === 0){
+    wrap.innerHTML = '<div class="empty">Aún no registras validaciones hoy.</div>';
+    return;
+  }
+  wrap.innerHTML = regs.map(r => entryHtml(r, false)).join('');
+}
+
+const CATEGORIAS_RECETA = ["Prescripción ilegible o incompleta","Dosis a confirmar con médico tratante","Medicamento no disponible / sustitución","Interacción medicamentosa","Alergia o reacción adversa previa","Duplicidad terapéutica","Vía de administración a aclarar","Identificación de paciente a confirmar","Receta vencida o fuera de plazo"];
+const CATEGORIAS_PREP = [
+  // Redacción vigente, alineada con la pauta validada (Alvarado et al., 2014)
+  "Medicamentos rotulados con indicaciones médicas incorrectas",
+  "Medicamentos rotulados con indicaciones médicas incompletas",
+  "Medicamento empacado no corresponde al rotulado en la etiqueta",
+  "Medicamento no corresponde a la forma farmacéutica recetada",
+  "No se preparó uno o más medicamentos prescritos en la receta médica",
+  "Cantidad total del medicamento empacado incorrecto",
+  "Hay preparación de medicamentos que no están prescritos en la receta",
+  // Redacción anterior — se conserva para que los registros ya guardados
+  // sigan mostrándose con el color correcto
+  "Rotulado con indicación incorrecta o incompleta",
+  "Medicamento empacado no coincide con la etiqueta",
+  "Forma farmacéutica preparada no corresponde a la receta",
+  "Medicamento prescrito no fue preparado",
+  "Cantidad empacada incorrecta",
+  "Medicamento preparado que no estaba prescrito"
+];
+
+function catClass(categoria){
+  if(CATEGORIAS_RECETA.includes(categoria)) return 'cat-receta';
+  if(CATEGORIAS_PREP.includes(categoria)) return 'cat-prep';
+  return 'cat-otro';
+}
+function observacionBadges(r){
+  let obs = [];
+  if(Array.isArray(r.observaciones) && r.observaciones.length){
+    obs = r.observaciones;
+  } else if(r.categoria){
+    const cats = r.categoria.split('|').map(c => c.trim()).filter(Boolean);
+    obs = cats.map(c => ({ categoria: c, detalle: '' }));
+  }
+  if(obs.length === 0) return '';
+  const chips = obs.map(o => {
+    const label = o.categoria === 'Otro' && o.detalle ? o.detalle : o.categoria;
+    return `<span class="cat-tag ${catClass(o.categoria)}">${escapeHtml(label)}</span>`;
+  }).join('');
+  return `<div class="cat-wrap">${chips}</div>`;
+}
+
+function modalidadBadge(modalidad){
+  const map = {
+    'Ambulatorio': { cls: 'mod-Ambulatorio', sym: '🩺' },
+    'Hospitalizado': { cls: 'mod-Hospitalizado', sym: '🏥' },
+    'Urgencia': { cls: 'mod-Urgencia', sym: '🚑' },
+    'Gestión Territorial': { cls: 'mod-GestiónTerritorial', sym: '🚐' },
+    'Casillero': { cls: 'mod-Casillero', sym: '📦' },
+  };
+  const m = map[modalidad] || map['Ambulatorio'];
+  return `<span class="mod-tag ${m.cls}">${m.sym} ${escapeHtml(modalidad || 'Ambulatorio')}</span>`;
+}
+
+/* AUDITORÍA 2026-08-12: el indicador de sincronización ahora tiene tres
+   estados honestos. "Confirmado en planilla" significa que el registro fue
+   efectivamente encontrado en la planilla central, no solo que el celular
+   intentó enviarlo. */
+function syncBadge(r){
+  if(!getSheetUrl()) return '';
+  if(r.synced) return ' · <span style="color:#0A6650;">☁ confirmado en planilla</span>';
+  if(r.syncState === 'enviado') return ' · <span style="color:#5C7A7E;">↻ enviando…</span>';
+  if(r.syncState === 'error') return ' · <span style="color:#B85042;">⚠ sin confirmar — reintentando</span>';
+  return ' · <span style="color:#C98A2C;">⏳ pendiente de envío</span>';
+}
+
+function entryHtml(r, showQf){
+  const tag = r.tipo === 'intervencion'
+    ? `<span class="tag tag-int">Intervención</span>`
+    : `<span class="tag tag-ok">Conforme</span>`;
+  const metaExtra = showQf ? `${escapeHtml(r.qfName)} · ${escapeHtml(r.establecimiento)} · ` : '';
+  const precTxt = (r.numPrescripciones || 1) + (r.numPrescripciones === 1 ? ' prescripción' : ' prescripciones');
+  const syncTxt = syncBadge(r);
+  return `<div class="entry">
+    <div>
+      <div class="folio-row"><span class="folio">${escapeHtml(r.folio)}</span>${modalidadBadge(r.modalidad)}</div>
+      <div class="meta">${metaExtra}${r.hora} · ${precTxt}${syncTxt}</div>
+      ${observacionBadges(r)}
+    </div>
+    ${tag}
+  </div>`;
+}
+
+/* ============ HISTORY ============ */
+function renderHistory(){
+  const from = document.getElementById('histFrom').value;
+  const to = document.getElementById('histTo').value;
+  const est = document.getElementById('histEstFilter').value;
+  let regs = getRegistros();
+  if(from) regs = regs.filter(r => r.fecha >= from);
+  if(to) regs = regs.filter(r => r.fecha <= to);
+  if(est) regs = regs.filter(r => r.establecimiento === est);
+  regs.sort((a,b) => (b.fecha + b.hora).localeCompare(a.fecha + a.hora));
+
+  const totalInt = regs.filter(r => r.tipo === 'intervencion').length;
+  const totalPresc = regs.reduce((sum,r) => sum + (r.numPrescripciones || 1), 0);
+  const totalHoras = regs.reduce((sum,r) => sum + (r.tiempoClinicoHoras != null ? r.tiempoClinicoHoras : calcularTiempoClinico(r)), 0);
+  document.getElementById('histSummary').innerHTML =
+    `${regs.length} recetas · ${totalPresc} prescripciones validadas · ${totalInt} con intervención<br>`+
+    `<b style="color:var(--teal); font-size:14px;">⏱️ ${totalHoras.toFixed(2)} horas clínicas en este rango</b>`;
+
+  const wrap = document.getElementById('histList');
+  if(regs.length === 0){ wrap.innerHTML = '<div class="empty">No hay registros en ese rango.</div>'; return; }
+  wrap.innerHTML = regs.map(r => {
+    const precTxt = (r.numPrescripciones || 1) + (r.numPrescripciones === 1 ? ' presc.' : ' presc.');
+    const horasTxt = (r.tiempoClinicoHoras != null ? r.tiempoClinicoHoras : calcularTiempoClinico(r)).toFixed(2);
+    return `<div class="entry">
+      <div>
+        <div class="folio-row"><span class="folio">${escapeHtml(r.folio)}</span>${modalidadBadge(r.modalidad)}</div>
+        <div class="meta">${escapeHtml(r.qfName)} · ${escapeHtml(r.establecimiento)} · ${r.fecha} ${r.hora} · ${precTxt} · ⏱️ ${horasTxt}h</div>
+        ${observacionBadges(r)}
+      </div>
+      ${r.tipo === 'intervencion' ? '<span class="tag tag-int">Intervención</span>' : '<span class="tag tag-ok">Conforme</span>'}
+    </div>`;
+  }).join('');
+}
+
+function exportCsv(){
+  const from = document.getElementById('histFrom').value;
+  const to = document.getElementById('histTo').value;
+  const est = document.getElementById('histEstFilter').value;
+  let regs = getRegistros();
+  if(from) regs = regs.filter(r => r.fecha >= from);
+  if(to) regs = regs.filter(r => r.fecha <= to);
+  if(est) regs = regs.filter(r => r.establecimiento === est);
+  regs.sort((a,b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora));
+
+  const header = ['Fecha','Hora','Folio receta','N° prescripciones','Modalidad','QF','Establecimiento',
+                  'Resultado','Categoría observación','Detalle','Aceptación intervención',
+                  'Tiempo Clínico (Horas)','Segundos validación','Segundos registro'];
+  const rows = regs.map(r => [
+    r.fecha, r.hora, r.folio, (r.numPrescripciones || 1), r.modalidad || 'Ambulatorio',
+    r.qfName, r.establecimiento,
+    r.tipo === 'intervencion' ? 'Con intervención' : 'Conforme', r.categoria || '', r.detalle, r.aceptacion || '',
+    (r.tiempoClinicoHoras != null ? r.tiempoClinicoHoras : calcularTiempoClinico(r)).toFixed(2),
+    r.segundosValidacion != null ? r.segundosValidacion : '',
+    r.segundosRegistro != null ? r.segundosRegistro : ''
+  ]);
+  const csv = [header, ...rows].map(row =>
+    row.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(',')
+  ).join('\r\n');
+
+  const blob = new Blob(["\uFEFF" + csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `registro_validacion_dispensacion_${from || 'inicio'}_a_${to || 'hoy'}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ============ ADMIN ============ */
+function openAdmin(){
+  switchTab('main');
+  document.getElementById('viewMain').classList.add('hidden');
+  document.getElementById('viewHistory').classList.add('hidden');
+  document.getElementById('viewLogin').classList.add('hidden');
+  document.getElementById('viewAdmin').classList.remove('hidden');
+  document.getElementById('adminLock').classList.remove('hidden');
+  document.getElementById('adminPanel').classList.add('hidden');
+  document.getElementById('adminPinInput').value = '';
+}
+document.getElementById('btnAdmin').addEventListener('click', openAdmin);
+
+function unlockAdmin(){
+  const pin = document.getElementById('adminPinInput').value.trim();
+  if(pin !== getAdminPin()){ alert('PIN incorrecto.'); return; }
+  document.getElementById('adminLock').classList.add('hidden');
+  document.getElementById('adminPanel').classList.remove('hidden');
+  renderAdminLists();
+  fetchServerLists(() => renderAdminLists());
+}
+
+function renderAdminLists(){
+  const qfs = getQfs();
+  document.getElementById('qfList').innerHTML = qfs.length === 0
+    ? '<div class="empty">Sin QFs registrados.</div>'
+    : qfs.map(q => `<div class="qf-row"><span>${escapeHtml(q.name)} <span style="color:var(--muted); font-size:11.5px;">— ${escapeHtml(q.establecimiento || 'sin establecimiento')}</span></span><button onclick="removeQf('${q.id}')">Eliminar</button></div>`).join('');
+
+  const ests = getEstablecimientos();
+  document.getElementById('estList').innerHTML = ests.map((e,i) =>
+    `<div class="qf-row"><span>${escapeHtml(e)}</span><button onclick="removeEst(${i})">Eliminar</button></div>`).join('');
+
+  const newQfEstSel = document.getElementById('newQfEst');
+  newQfEstSel.innerHTML = ests.map(e => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
+
+  document.getElementById('sheetUrlInput').value = getSheetUrl();
+  updateSheetUrlStatus();
+  renderCronoAdmin();
+}
+
+function updateSheetUrlStatus(){
+  const url = getSheetUrl();
+  const box = document.getElementById('sheetUrlStatus');
+  if(!box) return;
+  const pendientes = getRegistros().filter(r => !r.synced);
+  if(!url){
+    box.textContent = 'Sin conectar — los registros solo se guardan en este dispositivo.';
+    return;
+  }
+  if(pendientes.length === 0){
+    box.textContent = 'Conectado. Todos los registros de este dispositivo están confirmados en la planilla central.';
+    return;
+  }
+  const ultimoError = (pendientes.find(r => r.syncError) || {}).syncError || '';
+  box.innerHTML = `Conectado. <b>${pendientes.length}</b> registro(s) aún sin confirmar en la planilla (se reintenta solo cada 2 minutos).`
+    + (ultimoError ? `<br><span style="color:var(--alert);">Último aviso: ${escapeHtml(ultimoError)}</span>` : '');
+}
+
+/* ============ DIAGNÓSTICO DE CONEXIÓN ============
+ * AUDITORÍA 2026-08-12. Permite saber, desde el propio dispositivo del
+ * colega y sin depender de los registros de ejecución de Apps Script,
+ * si la app puede LEER y ESCRIBIR en la planilla central. */
+/* AUDITORÍA 2026-08-13. Pregunta al servidor qué está viendo realmente en
+   la hoja "Registros" y lo muestra en español. Responde de una sola vez
+   las preguntas que antes había que ir adivinando: ¿la hoja se llama como
+   corresponde?, ¿tiene las columnas esperadas?, ¿qué fechas existen?,
+   ¿coincide "hoy" del servidor con el de este celular? */
+function diagnosticoPlanilla(){
+  const box = document.getElementById('diagBox');
+  const url = getSheetUrl();
+  box.classList.remove('hidden');
+  if(!url){ box.textContent = '✗ No hay URL configurada en este dispositivo.'; return; }
+  box.textContent = 'Consultando la planilla…';
+
+  fetch(url + '?action=diagnostico')
+    .then(r => r.json())
+    .then(d => {
+      const L = [];
+      if(d.status !== 'ok'){ box.textContent = 'El servidor respondió: ' + JSON.stringify(d).slice(0,300); return; }
+
+      if(!d.hojaEncontrada){
+        L.push('✗ NO EXISTE la hoja "Registros" en esta planilla.');
+        L.push('   Hojas encontradas: ' + (d.hojasDisponibles || []).join(', '));
+        box.textContent = L.join('\n'); return;
+      }
+
+      L.push('Filas de registros en la planilla: ' + d.totalFilas);
+      if((d.faltanColumnas || []).length){
+        L.push('✗ FALTAN COLUMNAS en la cabecera: ' + d.faltanColumnas.join(', '));
+        L.push('   Cabecera actual: ' + (d.cabeceras || []).join(' | '));
+      } else {
+        L.push('✓ La cabecera tiene todas las columnas esperadas.');
+      }
+      L.push('Formato de la columna "fecha": ' + d.tipoColumnaFecha);
+      L.push('Zona horaria — planilla: ' + d.zonaHorariaPlanilla + ' · proyecto: ' + d.zonaHorariaProyecto);
+
+      const hoyLocal = todayStr();
+      L.push('');
+      L.push('Hoy según este celular: ' + hoyLocal);
+      L.push('Hoy según el servidor:  ' + d.hoySegunElServidor);
+      if(d.hoySegunElServidor !== hoyLocal){
+        L.push('✗ NO COINCIDEN — por eso el filtro por fecha no encuentra nada.');
+      } else {
+        L.push('✓ Coinciden.');
+      }
+      L.push('Registros de hoy en la planilla: ' + d.registrosDeHoy);
+
+      L.push('');
+      L.push('Últimas fechas con registros:');
+      (d.ultimasFechasConRegistros || []).forEach(f => L.push('   ' + f.fecha + ' → ' + f.registros + ' registro(s)'));
+
+      L.push('');
+      L.push('Establecimientos tal como están escritos en la planilla:');
+      (d.establecimientos || []).forEach(e => L.push('   "' + e.establecimiento + '" → ' + e.registros + ' registro(s)'));
+      const session = getSession();
+      if(session){
+        const mio = String(session.establecimiento || '').trim();
+        const calza = (d.establecimientos || []).some(e => e.establecimiento === mio);
+        L.push('');
+        L.push('Tu sesión usa: "' + mio + '" → ' + (calza
+          ? '✓ calza con la planilla.'
+          : '✗ NO calza con ninguno de los de arriba (por eso Vista Equipo saldría vacía en "mi establecimiento").'));
+      }
+
+      box.textContent = L.join('\n');
+    })
+    .catch(err => {
+      box.textContent = 'No se pudo obtener el diagnóstico: ' + err.message
+        + '\n\nSi dice "Acción desconocida", falta volver a implementar el Apps Script'
+        + ' (Implementar → Administrar implementaciones → Nueva versión).';
+    });
+}
+
+function probarConexion(){
+  const box = document.getElementById('diagBox');
+  const url = getSheetUrl();
+  box.classList.remove('hidden');
+
+  if(!url){
+    box.innerHTML = '<b style="color:var(--alert);">✗ No hay URL configurada en este dispositivo.</b>\nPega la URL del Apps Script arriba y pulsa "Guardar URL".';
+    return;
+  }
+
+  const lineas = [];
+  lineas.push('URL configurada:\n' + url);
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(url)){
+    lineas.push('⚠ La URL no tiene la forma esperada (…/macros/s/…/exec). Revisa que sea la URL de la *aplicación web implementada*, no la del editor del script.');
+  }
+  lineas.push('Probando lectura…');
+  box.textContent = lineas.join('\n');
+
+  fetch(url)
+    .then(r => r.json())
+    .then(d => {
+      if(d && d.status === 'ok'){
+        lineas.push(`✓ LECTURA CORRECTA — ${(d.qfs || []).length} QF(s) y ${(d.establecimientos || []).length} establecimiento(s) en la planilla.`);
+      } else {
+        lineas.push('✗ LECTURA RECHAZADA — el servidor respondió: ' + JSON.stringify(d).slice(0, 200));
+      }
+    })
+    .catch(err => {
+      lineas.push('✗ NO SE PUDO LEER — ' + err.message
+        + '\n   Causa más probable: la implementación del Apps Script no está publicada como "Cualquier usuario" en "Quién tiene acceso", o la URL es de una implementación antigua.');
+    })
+    .then(() => {
+      lineas.push('Probando escritura…');
+      box.textContent = lineas.join('\n');
+      return fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ type: 'ping' })
+      }).then(r => r.text());
+    })
+    .then(txt => {
+      let j = null;
+      try { j = JSON.parse(txt); } catch(e){ j = null; }
+      if(j && (j.status === 'ok' || j.message)){
+        lineas.push('✓ ESCRITURA CORRECTA — el servidor recibió y procesó el envío. Los registros de este dispositivo sí llegan a la planilla.');
+      } else {
+        lineas.push('⚠ El servidor respondió algo no reconocible. Suele significar que la solicitud terminó en una pantalla de acceso de Google en vez de ejecutar el script → revisa "Quién tiene acceso: Cualquier usuario" en la implementación.');
+      }
+    })
+    .catch(err => {
+      lineas.push('✗ NO SE PUDO ESCRIBIR — ' + err.message
+        + '\n   El registro puede haber salido igualmente del dispositivo; usa "Reintentar envío" y revisa la planilla.');
+    })
+    .then(() => {
+      // Detecta específicamente un desfase de zona horaria entre el
+      // proyecto de Apps Script y Chile — la causa de "sin registros para
+      // la fecha" que le pasó a Jaqueline el 13-ago-2026, y que el resto
+      // de esta prueba (lectura/escritura) no alcanzaba a detectar.
+      lineas.push('Probando filtro de fecha…');
+      box.textContent = lineas.join('\n');
+      const hoy = todayStr();
+      return fetch(url + '?action=registros&fecha=' + encodeURIComponent(hoy))
+        .then(r => r.json())
+        .then(dHoy => fetch(url + '?action=registros').then(r => r.json()).then(dTodos => ({ dHoy, dTodos })))
+        .then(({ dHoy, dTodos }) => {
+          const totalHoy = (dHoy && dHoy.status === 'ok') ? (dHoy.registros || []).length : null;
+          const todos = (dTodos && dTodos.status === 'ok') ? (dTodos.registros || []) : [];
+          const fechaMasReciente = todos.reduce((max, r) => (r.fecha && r.fecha > max) ? r.fecha : max, '');
+          if (totalHoy === null) {
+            lineas.push('⚠ No se pudo probar el filtro de fecha.');
+          } else if (totalHoy > 0) {
+            lineas.push(`✓ FILTRO DE FECHA OK — hay ${totalHoy} registro(s) para hoy (${hoy}) en la planilla.`);
+          } else if (fechaMasReciente && fechaMasReciente !== hoy) {
+            lineas.push(`✗ POSIBLE DESFASE DE ZONA HORARIA — para este dispositivo hoy es ${hoy}, pero el registro más reciente en la planilla quedó guardado como ${fechaMasReciente}.`
+              + '\n   Revisa en script.google.com → ⚙ Configuración del proyecto → Zona horaria → debe decir "(GMT-04:00) Hora de Chile continental" (America/Santiago).');
+          } else {
+            lineas.push(`— No hay registros para hoy (${hoy}) todavía en la planilla. Puede ser normal si aún nadie registró hoy.`);
+          }
+        })
+        .catch(() => { lineas.push('⚠ No se pudo probar el filtro de fecha.'); });
+    })
+    .then(() => {
+      const pend = getRegistros().filter(r => !r.synced).length;
+      lineas.push('—');
+      lineas.push(pend === 0
+        ? 'Sin registros pendientes en este dispositivo.'
+        : `${pend} registro(s) de este dispositivo aún sin confirmar en la planilla.`);
+      box.textContent = lineas.join('\n');
+    });
+}
+
+function saveSheetUrl(){
+  const url = document.getElementById('sheetUrlInput').value.trim();
+  save(K_SHEET_URL, url);
+  updateSheetUrlStatus();
+  if(url) syncPending();
+}
+
+function addQf(){
+  const name = document.getElementById('newQfName').value.trim();
+  const pin = document.getElementById('newQfPin').value.trim();
+  const establecimiento = document.getElementById('newQfEst').value;
+  if(!name || !/^\d{4}$/.test(pin)){ alert('Ingresa un nombre y un PIN de 4 dígitos.'); return; }
+  if(!establecimiento){ alert('Selecciona el establecimiento asignado.'); return; }
+  const qfs = getQfs();
+  // id con sufijo aleatorio: evita colisiones si dos administradores dan
+  // de alta a un QF en el mismo milisegundo (el servidor descarta ids repetidos)
+  const newQf = {id: 'qf_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+                 name, pin: String(pin), establecimiento: String(establecimiento || '').trim()};
+  qfs.push(newQf);
+  save(K_QFS, qfs);
+  document.getElementById('newQfName').value = '';
+  document.getElementById('newQfPin').value = '';
+  renderAdminLists(); refreshLoginView();
+  pushQfAdd(newQf, true);
+}
+function removeQf(id){
+  if(!confirm('¿Eliminar este QF de la lista?')) return;
+  save(K_QFS, getQfs().filter(q => q.id !== id));
+  renderAdminLists(); refreshLoginView();
+  pushQfRemove(id, true);
+}
+
+function addEst(){
+  const name = document.getElementById('newEst').value.trim();
+  if(!name) return;
+  const ests = getEstablecimientos();
+  // Evita crear establecimientos "fantasma" que solo difieren en espacios
+  // o mayúsculas — la causa del duplicado "Pitrufquén / Pitrufquén ".
+  if(ests.some(e => String(e).trim().toLowerCase() === name.toLowerCase())){
+    alert('Ese establecimiento ya está en la lista.');
+    document.getElementById('newEst').value = '';
+    return;
+  }
+  ests.push(name);
+  save(K_EST, ests);
+  document.getElementById('newEst').value = '';
+  renderAdminLists(); refreshLoginView();
+  pushEstAdd(name, true);
+}
+function removeEst(i){
+  if(!confirm('¿Eliminar este establecimiento?')) return;
+  const ests = getEstablecimientos();
+  const removed = ests[i];
+  ests.splice(i,1);
+  save(K_EST, ests);
+  renderAdminLists(); refreshLoginView();
+  pushEstRemove(removed, true);
+}
+
+function changeAdminPin(){
+  const pin = document.getElementById('newAdminPin').value.trim();
+  if(!/^\d{4}$/.test(pin)){ alert('El PIN debe tener 4 dígitos.'); return; }
+  save(K_ADMIN_PIN, pin);
+  document.getElementById('newAdminPin').value = '';
+  alert('PIN de administración actualizado.');
+}
+
+/* ============ VISTA EQUIPO ============ */
+let equipoInicializado = false;
+
+function initEquipoTab(){
+  const session = getSession();
+  if(!session) return; // sin turno iniciado no hay vista de equipo
+
+  // Fecha por defecto: hoy
+  const fechaInput = document.getElementById('equipoFecha');
+  if(!fechaInput.value) fechaInput.value = todayStr();
+
+  // Filtro de establecimiento — incluye la opción de ver toda la red.
+  // AUDITORÍA 2026-08-12: antes la vista quedaba fija en el establecimiento
+  // de la sesión, por lo que la coordinadora de red no podía ver desde la
+  // app los registros de los otros hospitales.
+  const estSel = document.getElementById('equipoEstFilter');
+  const propio = String(session.establecimiento || '').trim();
+  const ests = getEstablecimientos();
+  const prevEst = estSel.value;
+  estSel.innerHTML =
+    `<option value="${escapeHtml(propio)}">${escapeHtml(propio)} (mi establecimiento)</option>` +
+    `<option value="__TODOS__">🌐 Toda la red SSASUR</option>` +
+    ests.filter(e => String(e).trim() !== propio)
+        .map(e => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
+  if(prevEst) estSel.value = prevEst;
+  estSel.onchange = poblarQfFilterEquipo;
+
+  poblarQfFilterEquipo();
+
+  if(!equipoInicializado){
+    equipoInicializado = true;
+    cargarEquipo();
+  }
+}
+
+function poblarQfFilterEquipo(){
+  const estSel = document.getElementById('equipoEstFilter');
+  const est = estSel.value;
+  const qfSel = document.getElementById('equipoQfFilter');
+  const prev = qfSel.value;
+  const qfs = est === '__TODOS__'
+    ? getQfs()
+    : getQfs().filter(q => String(q.establecimiento || '').trim() === String(est).trim());
+  qfSel.innerHTML = '<option value="">Todos</option>' +
+    qfs.map(q => `<option value="${escapeHtml(q.name)}">${escapeHtml(q.name)}</option>`).join('');
+  if(prev) qfSel.value = prev;
+}
+
+function cargarEquipo(){
+  const url = getSheetUrl();
+  if(!url){
+    document.getElementById('equipoStatus').textContent = 'Sin conexión a la planilla central. Configura la URL en el panel Admin.';
+    document.getElementById('equipoList').innerHTML = '';
+    return;
+  }
+
+  const session = getSession();
+  if(!session) return;
+  const fecha = document.getElementById('equipoFecha').value;
+  const qfName = document.getElementById('equipoQfFilter').value;
+  const estSel = document.getElementById('equipoEstFilter');
+  const est = estSel ? estSel.value : String(session.establecimiento || '').trim();
+  const verTodos = (est === '__TODOS__');
+
+  document.getElementById('equipoStatus').textContent = 'Cargando…';
+  document.getElementById('equipoList').innerHTML = '';
+  document.getElementById('equipoResumenCard').style.display = 'none';
+
+  // Construir URL con parámetros
+  let fetchUrl = url + '?action=registros';
+  if(!verTodos) fetchUrl += '&establecimiento=' + encodeURIComponent(est);
+  if(fecha) fetchUrl += '&fecha=' + encodeURIComponent(fecha);
+  if(qfName) fetchUrl += '&qfName=' + encodeURIComponent(qfName);
+
+  fetch(fetchUrl)
+    .then(r => r.json())
+    .then(data => {
+      if(data.status !== 'ok') throw new Error(data.message || 'Error servidor');
+      renderEquipo(data.registros, fecha, verTodos);
+    })
+    .catch(err => {
+      document.getElementById('equipoStatus').textContent = 'Error al conectar con la planilla: ' + err.message;
+    });
+}
+
+function renderEquipo(registros, fecha, verTodos){
+  const statusEl = document.getElementById('equipoStatus');
+  const listEl = document.getElementById('equipoList');
+  const resumenCard = document.getElementById('equipoResumenCard');
+  const resumenEl = document.getElementById('equipoResumen');
+
+  if(registros.length === 0){
+    statusEl.textContent = fecha ? `Sin registros para el ${fecha}.` : 'Sin registros.';
+    listEl.innerHTML = '';
+    resumenCard.style.display = 'none';
+    return;
+  }
+
+  // Resumen
+  const totalRecetas = registros.length;
+  const totalHoras = registros.reduce((s, r) => s + (parseFloat(r.tiempoClinicoHoras) || 0), 0);
+  const porQf = {};
+  registros.forEach(r => {
+    porQf[r.qfName] = (porQf[r.qfName] || 0) + 1;
+  });
+  const resumenQf = Object.entries(porQf).map(([n,c]) => `<b>${escapeHtml(n)}</b>: ${c}`).join(' · ');
+
+  // Desglose por establecimiento cuando se consulta toda la red
+  let resumenEst = '';
+  if(verTodos){
+    const porEst = {};
+    registros.forEach(r => {
+      const k = String(r.establecimiento || 'Sin establecimiento').trim() || 'Sin establecimiento';
+      porEst[k] = (porEst[k] || 0) + 1;
+    });
+    resumenEst = '<p class="sub" style="margin-top:8px;"><b>Por establecimiento:</b> ' +
+      Object.entries(porEst).sort((a,b) => b[1]-a[1])
+        .map(([n,c]) => `${escapeHtml(n)}: <b>${c}</b>`).join(' · ') + '</p>';
+  }
+
+  resumenEl.innerHTML = `
+    <div style="display:flex; gap:18px; flex-wrap:wrap; align-items:center;">
+      <div><b style="font-size:22px; color:var(--teal);">${totalRecetas}</b><br><span class="sub">recetas</span></div>
+      <div><b style="font-size:22px; color:var(--teal);">${totalHoras.toFixed(2)}</b><br><span class="sub">hrs clínicas</span></div>
+    </div>
+    ${resumenEst}
+    <p class="sub" style="margin-top:8px;">${resumenQf}</p>`;
+  resumenCard.style.display = 'block';
+
+  // Lista de registros
+  statusEl.textContent = `${totalRecetas} registro(s) · actualizado ahora`;
+  listEl.innerHTML = registros.map(r => {
+    const modalidadColor = {
+      'Ambulatorio':'var(--teal)', 'Hospitalizado':'var(--seafoam)',
+      'Gestión Territorial':'var(--amber)', 'Casillero':'var(--muted)'
+    }[r.modalidad] || 'var(--muted)';
+    return `<div style="border-left:4px solid ${modalidadColor}; padding:10px 12px; margin-bottom:8px; background:var(--offwhite); border-radius:0 8px 8px 0;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <b style="font-size:13px;">Folio ${escapeHtml(String(r.folio || '—'))}</b>
+        <span class="sub" style="font-size:11px;">${escapeHtml(r.hora || '')}</span>
+      </div>
+      <div style="font-size:12px; color:var(--muted); margin-top:2px;">
+        ${escapeHtml(r.qfName || '')}${verTodos ? ' · <b>' + escapeHtml(String(r.establecimiento || '—').trim()) + '</b>' : ''} · ${escapeHtml(r.modalidad || '')}
+        ${r.categoria ? ' · <i>' + escapeHtml(r.categoria) + '</i>' : ''}
+      </div>
+      ${r.detalle ? `<div style="font-size:11.5px; color:var(--ink); margin-top:4px;">${escapeHtml(r.detalle)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+/* ============ QR COMPARTIR CONFIGURACIÓN ============ */
+function showQrModal(){
+  const url = getSheetUrl();
+  const modal = document.getElementById('qrModal');
+  const errMsg = document.getElementById('qrError');
+  const container = document.getElementById('qrContainer');
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+  if(!url){
+    errMsg.classList.remove('hidden');
+    container.innerHTML = '';
+    return;
+  }
+  errMsg.classList.add('hidden');
+  // Build the setup URL: app URL + ?setup=<encoded script url>
+  const setupUrl = 'https://jacvalenzuelajv-cell.github.io/Registrovalidaci-n/?setup=' + encodeURIComponent(url);
+  // Use QR Server API (no JS lib needed)
+  const qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(setupUrl);
+  container.innerHTML = '<img src="' + qrSrc + '" width="220" height="220" alt="QR configuración" style="border-radius:8px;">';
+}
+
+// On load: check for ?setup= parameter and auto-configure
+(function checkSetupParam(){
+  const params = new URLSearchParams(window.location.search);
+  const setupUrl = params.get('setup');
+  if(setupUrl && setupUrl.startsWith('https://')){
+    save(K_SHEET_URL, setupUrl);
+    history.replaceState(null, '', window.location.pathname);
+    setTimeout(() => {
+      fetchServerLists(() => {
+        refreshLoginView();
+        alert('✓ Configuración aplicada. La app ya está conectada a la planilla central.');
+      });
+    }, 600);
+  }
+})();
+
+/* ============ UTIL ============ */
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>
